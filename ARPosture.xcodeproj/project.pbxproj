@@ -13,6 +13,9 @@
 		84817C79221FEBF3004F202B /* ARPosture.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 84817C77221FEBF3004F202B /* ARPosture.xcdatamodeld */; };
 		84817C7B221FEBF5004F202B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84817C7A221FEBF5004F202B /* Assets.xcassets */; };
 		84817C7E221FEBF5004F202B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84817C7C221FEBF5004F202B /* LaunchScreen.storyboard */; };
+		84817C8622202634004F202B /* coordinateOrigin.scn in Resources */ = {isa = PBXBuildFile; fileRef = 84817C8522202634004F202B /* coordinateOrigin.scn */; };
+		84817C882220281F004F202B /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84817C872220281F004F202B /* Utilities.swift */; };
+		8486DA14222C3F2200089313 /* SettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8486DA13222C3F2200089313 /* SettingsTableViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +27,9 @@
 		84817C7A221FEBF5004F202B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		84817C7D221FEBF5004F202B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		84817C7F221FEBF5004F202B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		84817C8522202634004F202B /* coordinateOrigin.scn */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = coordinateOrigin.scn; sourceTree = "<group>"; };
+		84817C872220281F004F202B /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
+		8486DA13222C3F2200089313 /* SettingsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTableViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,13 +64,24 @@
 			children = (
 				84817C70221FEBF3004F202B /* AppDelegate.swift */,
 				84817C72221FEBF3004F202B /* ViewController.swift */,
+				84817C872220281F004F202B /* Utilities.swift */,
+				8486DA13222C3F2200089313 /* SettingsTableViewController.swift */,
+				84817C9022202B6C004F202B /* Assets */,
+				84817C77221FEBF3004F202B /* ARPosture.xcdatamodeld */,
 				84817C74221FEBF3004F202B /* Main.storyboard */,
-				84817C7A221FEBF5004F202B /* Assets.xcassets */,
 				84817C7C221FEBF5004F202B /* LaunchScreen.storyboard */,
 				84817C7F221FEBF5004F202B /* Info.plist */,
-				84817C77221FEBF3004F202B /* ARPosture.xcdatamodeld */,
 			);
 			path = ARPosture;
+			sourceTree = "<group>";
+		};
+		84817C9022202B6C004F202B /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				84817C7A221FEBF5004F202B /* Assets.xcassets */,
+				84817C8522202634004F202B /* coordinateOrigin.scn */,
+			);
+			path = Assets;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -127,6 +144,7 @@
 			files = (
 				84817C7E221FEBF5004F202B /* LaunchScreen.storyboard in Resources */,
 				84817C7B221FEBF5004F202B /* Assets.xcassets in Resources */,
+				84817C8622202634004F202B /* coordinateOrigin.scn in Resources */,
 				84817C76221FEBF3004F202B /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -139,7 +157,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				84817C73221FEBF3004F202B /* ViewController.swift in Sources */,
+				8486DA14222C3F2200089313 /* SettingsTableViewController.swift in Sources */,
 				84817C71221FEBF3004F202B /* AppDelegate.swift in Sources */,
+				84817C882220281F004F202B /* Utilities.swift in Sources */,
 				84817C79221FEBF3004F202B /* ARPosture.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -286,7 +306,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 869Y5ET4FK;
 				INFOPLIST_FILE = ARPosture/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -294,6 +316,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.unisa.ARPosture;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -303,7 +326,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 869Y5ET4FK;
 				INFOPLIST_FILE = ARPosture/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -311,6 +336,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.unisa.ARPosture;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

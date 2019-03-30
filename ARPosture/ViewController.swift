@@ -20,23 +20,27 @@ class ViewController: UIViewController,ARSessionDelegate {
     @IBOutlet weak var cameraInclinationLabel: UILabel!
     @IBOutlet weak var meanInclinationLabel: UILabel!
     @IBOutlet weak var postureStatusLabel: UILabel!
+    @IBOutlet weak var balanceLabel: UILabel!
     
-    var counter = 0
     weak var timer: Timer?
     
     var mean: Float = 0
-    
-    var sensibility = UserDefaults.standard.integer(forKey: "sensibility")
-    
-    var sensibilityTime = UserDefaults.standard.integer(forKey: "sensibilityTime")
     
     var isNodeVisible: Bool = false
     
     var meanCounter: Float = 1
     
-    var postureCounter: Int = 1
+    var badPostureCounter: Double = 1
+    
+    var goodPostureCounter: Double = 1
+    
+    var postureCounter: Double = 1
+    
+    var alertCounter: Double = 1
     
     var alertFlag: Bool = false
+    
+    var alertFlagBalance: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,7 +49,7 @@ class ViewController: UIViewController,ARSessionDelegate {
         
         sceneView.delegate = self
         
-        sceneView.preferredFramesPerSecond = UserDefaults.standard.integer(forKey: "fps")
+        sceneView.preferredFramesPerSecond = UserDefaults.standard.integer(forKey: "fps") //set fps from userdefaults value
         
         //sceneView.showsStatistics = true
         
@@ -57,10 +61,10 @@ class ViewController: UIViewController,ARSessionDelegate {
         let configuration = ARFaceTrackingConfiguration()
         configuration.isLightEstimationEnabled = true
 
-        sceneView.session.run(configuration)
+        sceneView.session.run(configuration) //starts the session
         
         DispatchQueue.main.async {
-            self.timer = Timer.scheduledTimer(withTimeInterval: 1.0,repeats: true) {
+            self.timer = Timer.scheduledTimer(withTimeInterval: 1.0,repeats: true) { //once every second we call the update function
                 theTimer in
                 self.update()
             }
@@ -74,13 +78,12 @@ class ViewController: UIViewController,ARSessionDelegate {
         sceneView.session.pause()
         
         if timer != nil {
-            timer!.invalidate()
+            timer!.invalidate() //changing view will stop the timer, preventing multiple istances
             timer = nil
         }
     }
 }
 
-let alert = UIAlertController(title: "Attenzione", message: "Stai utilizzando lo smartphone con un postura scorretta da troppo tempo.\nUtilizza una postura migliore o fai una pausa.", preferredStyle: .alert)
 
 var currentFaceAnchor: ARFaceAnchor?
 
@@ -113,6 +116,7 @@ extension ViewController: ARSCNViewDelegate {
         rightEyeNode.simdPivot = float4x4(diagonal: float4(3, 3, 3, 1))
         leftEyeNode.simdPivot = float4x4(diagonal: float4(3, 3, 3, 1))
        
+        //add childnodes to anchornode
         anchorNode.addChildNode(rightEyeNode)
         anchorNode.addChildNode(leftEyeNode)
 
@@ -120,11 +124,20 @@ extension ViewController: ARSCNViewDelegate {
  
 
     func update(){
+        
+        let sensibility = UserDefaults.standard.integer(forKey: "sensibility")
+        
+        let sensibilityTime = UserDefaults.standard.double(forKey: "sensibilityTime")
+        
+        let alert = UIAlertController(title: "Attenzione", message: "Stai utilizzando lo smartphone con un postura scorretta da troppo tempo.\nUtilizza una postura migliore o fai una pausa.", preferredStyle: .alert)
+        let alertBalance = UIAlertController(title: "Attenzione", message: "Negli ultimi due minuti c'è stata una prevalenza di postura scorretta.\nUtilizza una postura migliore o fai una pausa.", preferredStyle: .alert)
        
-            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
-            
-            self.postureCounter -= 20
-            
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
+            self.alertCounter -= 20
+            self.alertFlag = true
+        }))
+        alertBalance.addAction(UIAlertAction(title: "OK", style: .default, handler:{ action in
+            self.alertFlagBalance = true
         }))
         
         rightEyeNode.isHidden = !(UserDefaults.standard.bool(forKey: "showAxis"))
@@ -133,7 +146,7 @@ extension ViewController: ARSCNViewDelegate {
         sceneView.preferredFramesPerSecond = UserDefaults.standard.integer(forKey: "fps")
         
         let pointOfView = sceneView.pointOfView
-        isNodeVisible = sceneView.isNode(rightEyeNode, insideFrustumOf: pointOfView!)
+        isNodeVisible = sceneView.isNode(rightEyeNode, insideFrustumOf: pointOfView!) // used to define if the face is in the scene
         
         
         if ((headNode?.simdWorldTransform != nil) && sceneView.pointOfView?.simdWorldTransform != nil){
@@ -145,8 +158,8 @@ extension ViewController: ARSCNViewDelegate {
             let deltaOrientation: simd_quatf = faceOrientation.inverse * cameraOrientation
         
             let faceTilt = headNode!.eulerAngles.z // absolute head tilt (roll)
-            let faceInclination = headNode!.eulerAngles.x // absolute head inclination (pitch)
-                
+            let faceInclination = headNode!.eulerAngles.x//eulerAngles.x // absolute head inclination (pitch)
+            
             let relativeAxis = deltaOrientation.axis * deltaOrientation.angle // we get the inclination of every coordinate in radians
     
             let inclinationDegrees = roundDec((relativeAxis.x * (180/Float.pi)))
@@ -165,56 +178,74 @@ extension ViewController: ARSCNViewDelegate {
             
             inclinationLabel.text = "Incl. rel: \(String(inclinationDegrees))° abs: \(String(absoluteHeadInclination))"
             
-            cameraInclinationLabel.text = "Cam X: \(String(absoluteCameraTiltX))°"
+            cameraInclinationLabel.text = "Incl. cam.: \(String(Int(absoluteCameraTiltX)))°"
             
+            
+                postureCounter += 1
                 
-                if (absoluteCameraTiltX < Float(10 + 1 * sensibility) || absoluteCameraTiltX > Float(40 - 5 * sensibility)) {
+                if(absoluteHeadInclination > Float(20 - 3 * sensibility) || absoluteHeadInclination < -2){
                     postureStatusLabel.textColor = UIColor.red
                     postureStatusLabel.text = "Bad"
-                    postureCounter += 2
-                }else if(inclinationDegrees > Float(15 - 3 * sensibility) || inclinationDegrees < 0){
-                    postureStatusLabel.textColor = UIColor.orange
-                    postureStatusLabel.text = "Bad"
-                    postureCounter += 1
+                    
+                    badPostureCounter += 1
+                    alertCounter += 1
                 }else{
                     postureStatusLabel.textColor = UIColor.green
                     postureStatusLabel.text = "Ok"
-                    postureCounter = 0
-                }
-                if (sensibilityTime == 0){
-                    if (postureCounter > 30){
-                        self.present(alert, animated: true, completion: nil)
-                        postureCounter -= 15
-                    }
-                }else{
-                if (postureCounter > 120 * sensibilityTime){
-                    self.present(alert, animated: true, completion: nil)
-                    postureCounter -= 30
-                    }
+                    
+                    goodPostureCounter += 1
+                    
+                    if (alertFlag == true){
+                        alertCounter = alertCounter * 0.5
+                    }else{
+                        alertCounter -= 1
+                    }  
                 }
                 
-                mean = roundDec((mean*meanCounter + inclinationDegrees)/(meanCounter + 1))
+                if (sensibilityTime == 0){
+                    if (alertCounter > 30){
+                        self.present(alert, animated: true, completion: nil)
+                    }
+                }else if (alertCounter > 120 * sensibilityTime){
+                        self.present(alert, animated: true, completion: nil)
+                    }
+                
+                let balance = roundDec(Float((goodPostureCounter*100)/postureCounter))
+                if (balance > 50){
+                    balanceLabel.textColor = UIColor.green
+                }else{
+                    balanceLabel.textColor = UIColor.red
+                }
+                balanceLabel.text = "Post. corr.: \(String(balance)) %"
+                
+                if( alertFlagBalance == false && balance < 50 && postureCounter > 120){
+                    self.present(alertBalance, animated: true, completion: nil)
+                }
+                
+                mean = roundDec((mean*meanCounter + absoluteHeadInclination)/(meanCounter + 1))
                 meanCounter += 1
-                meanInclinationLabel.text = "Media inclinazione: \(mean) °"
+                meanInclinationLabel.text = "Media incl.: \(mean) °"
                 
             }else{
+                
                 absoluteTiltLabel.text = "Tilt abs: 0.0°"
                 
                 relativeTiltLabel.text = "Tilt rel: 0.0°"
                 
                 inclinationLabel.text = "Incl. rel: 0.0° abs: 0.0°"
                 
-                cameraInclinationLabel.text = "Cam X: 0.0°"
+                cameraInclinationLabel.text = "Incl. cam.: 0.0°"
                 
                 postureStatusLabel.text = ""
                 
-                meanInclinationLabel.text = "Media inclinazione: "
+                meanInclinationLabel.text = "Media incl.: "
+                
+                balanceLabel.text = "Post. corr.:"
                 
                 print("Volto fuori dalla scena")
                 
             }
            
-            
         }else{
             print("Volto non rilevato")
         }
@@ -222,7 +253,6 @@ extension ViewController: ARSCNViewDelegate {
         eyeDistance()
 
     }
-    
     
     func eyeDistance(){
         
@@ -235,7 +265,7 @@ extension ViewController: ARSCNViewDelegate {
         if (averageDistanceCm > 15 && isNodeVisible == true){
             distanceLabel.text = "Distanza: \(String(averageDistanceCm)) cm"
         }else if (averageDistanceCm <= 15){
-            distanceLabel.text = "Troppo vicino alla camera"
+            distanceLabel.text = "Troppo vicino alla cam"
         }else if (isNodeVisible == false){
             distanceLabel.text = "Volto non rilevato"
         }

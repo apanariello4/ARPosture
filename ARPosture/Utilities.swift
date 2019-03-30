@@ -23,6 +23,6 @@ extension SCNVector3{
 }
 
 func roundDec(_ x: Float) -> Float {
-    let y = round(x*100)/100
+    let y = round(x*10)/10
     return y
 }
